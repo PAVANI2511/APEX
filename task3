@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 3 - Advanced Styling and JavaScript</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    /* Carousel */
+    .carousel img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: teal;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005d5d;
+    }
+
+    /* Quiz */
+    .quiz-section button {
+      margin: 5px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .quiz-section button {
+        width: 100%;
+      }
+
+      .joke-section button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Task 3: Interactive Web Page</h1>
+
+    <!-- 🌠 Image Carousel -->
+    <section class="carousel-section">
+      <h2>Image Carousel</h2>
+      <div class="carousel">
+        <img id="carousel-image" src="https://picsum.photos/400/200?random=1" alt="carousel image"/>
+        <div class="buttons">
+          <button onclick="prevImage()">Previous</button>
+          <button onclick="nextImage()">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ❓ Quiz Section -->
+    <section class="quiz-section">
+      <h2>Simple Quiz</h2>
+      <p id="quiz-question">What is the capital of France?</p>
+      <div id="quiz-options">
+        <button onclick="checkAnswer(this)">Berlin</button>
+        <button onclick="checkAnswer(this)">Madrid</button>
+        <button onclick="checkAnswer(this)">Paris</button>
+        <button onclick="checkAnswer(this)">Rome</button>
+      </div>
+      <p id="quiz-result"></p>
+    </section>
+
+    <!-- 🤣 Joke Fetcher -->
+    <section class="joke-section">
+      <h2>Get a Random Joke</h2>
+      <button onclick="fetchJoke()">Get Joke</button>
+      <p id="joke"></p>
+    </section>
+  </div>
+
+  <script>
+    // Carousel Logic
+    let currentIndex = 1;
+
+    function updateImage() {
+      const image = document.getElementById("carousel-image");
+      image.src = `https://picsum.photos/400/200?random=${currentIndex}`;
+    }
+
+    function nextImage() {
+      currentIndex++;
+      updateImage();
+    }
+
+    function prevImage() {
+      currentIndex = currentIndex > 1 ? currentIndex - 1 : 1;
+      updateImage();
+    }
+
+    // Quiz Logic
+    function checkAnswer(button) {
+      const result = document.getElementById("quiz-result");
+      if (button.innerText === "Paris") {
+        result.innerText = "✅ Correct!";
+        result.style.color = "green";
+      } else {
+        result.innerText = "❌ Wrong answer. Try again!";
+        result.style.color = "red";
+      }
+    }
+
+    // Joke Fetch Logic
+    function fetchJoke() {
+      fetch("https://official-joke-api.appspot.com/jokes/random")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("joke").innerText = `${data.setup} - ${data.punchline}`;
+        })
+        .catch(() => {
+          document.getElementById("joke").innerText = "Failed to load joke.";
+        });
+    }
+  </script>
+</body>
+</html>
