@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mini Shop</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --bg: #fafafa;
+      --card: #fff;
+      --text: #333;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a,
+    #cartBtn {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+    }
+
+    #cartCount {
+      position: absolute;
+      top: -7px;
+      right: -10px;
+      background: #f43f5e;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 8px;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .card:hover img {
+      transform: scale(1.05);
+    }
+
+    .info {
+      margin-top: 1rem;
+      flex: 1;
+    }
+
+    .price {
+      font-weight: 700;
+      margin: 0.5rem 0;
+    }
+
+    button.add {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+    }
+
+    #drawer {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 320px;
+      max-width: 80%;
+      height: 100%;
+      background: #fff;
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+      transition: right 0.4s;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+    }
+
+    #drawer.open {
+      right: 0;
+    }
+
+    #drawer h2 {
+      margin-bottom: 1rem;
+    }
+
+    #cartItems {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .itemRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .itemRow button {
+      background: #f43f5e;
+      color: #fff;
+      border: none;
+      padding: 2px 6px;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    #subtotal {
+      font-weight: 700;
+      margin: 1rem 0;
+    }
+
+    #closeDrawer {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mini Shop</h1>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#products">Products</a>
+      <div id="cartBtn">Cart <span id="cartCount">0</span></div>
+    </nav>
+  </header>
+
+  <main id="products">
+    <div class="grid" id="productGrid"></div>
+  </main>
+
+  <aside id="drawer">
+    <button id="closeDrawer">✕</button>
+    <h2>Your Cart</h2>
+    <div id="cartItems"></div>
+    <div id="subtotal">Subtotal: ₹0</div>
+  </aside>
+
+  <script>
+    const products = [
+  {
+    id: 1,
+    title: "Backpack",
+    price: 1199,
+    img: "https://m.media-amazon.com/images/I/71cgo7FXjTL.jpg"
+  },
+  {
+    id: 2,
+    title: "DSLR Camera",
+    price: 45999,
+    img: "https://tse2.mm.bing.net/th/id/OIP.mOtI68bMWv2yJZTZijhNEQHaE8?pid=Api&P=0&h=180"
+  },
+  {
+    id: 3,
+    title: "Bluetooth Speaker",
+    price: 1799,
+    img: "https://tse2.mm.bing.net/th/id/OIP.rNxkdzB6EsyKwx3tG_OZvAHaHa?pid=Api&P=0&h=180"
+  },
+  {
+    id: 4,
+    title: "Gaming Mouse",
+    price: 1499,
+    img: "https://tse3.mm.bing.net/th/id/OIP.8S7KGKQQkHOjbInhLPJYIgHaE5?pid=Api&P=0&h=180"
+  },
+  {
+    id: 5,
+    title: "Smart Watch",
+    price: 2999,
+    img: "https://media.croma.com/image/upload/v1684941109/Croma%20Assets/Communication/Wearable%20Devices/Images/269078_0_q5ki40.png"
+  },
+  {
+    id: 6,
+    title: "Sneakers",
+    price: 2999,
+    img: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg"
+  },
+  {
+    id: 7,
+    title: "Sunglasses",
+    price: 899,
+    img: "https://images.pexels.com/photos/46710/pexels-photo-46710.jpeg"
+  },
+  {
+    id: 8,
+    title: "Laptop Stand",
+    price: 1299,
+    img: "https://m.media-amazon.com/images/I/619NVqlTSiL._AC_SL1500_.jpg"
+  }
+];
+
+    const grid = document.getElementById("productGrid");
+    const cart = {};
+    const cartCount = document.getElementById("cartCount");
+    const drawer = document.getElementById("drawer");
+    const cartItems = document.getElementById("cartItems");
+    const subtotalEl = document.getElementById("subtotal");
+
+    products.forEach(p => {
+      grid.insertAdjacentHTML(
+        "beforeend",
+        `<div class="card">
+          <img src="${p.img}" loading="lazy" alt="${p.title}">
+          <div class="info">
+            <h4>${p.title}</h4>
+            <div class="price">₹${p.price.toLocaleString()}</div>
+          </div>
+          <button class="add" data-id="${p.id}">Add to cart</button>
+        </div>`
+      );
+    });
+
+    function renderCart() {
+      cartItems.innerHTML = "";
+      let sub = 0;
+      Object.values(cart).forEach(it => {
+        sub += it.qty * it.price;
+        cartItems.insertAdjacentHTML(
+          "beforeend",
+          `<div class="itemRow">
+            <span>${it.title} × ${it.qty}</span>
+            <span>₹${(it.qty * it.price).toLocaleString()}
+              <button class="remove" data-id="${it.id}">✕</button>
+            </span>
+          </div>`
+        );
+      });
+      subtotalEl.textContent = `Subtotal: ₹${sub.toLocaleString()}`;
+      cartCount.textContent = Object.values(cart).reduce((s, i) => s + i.qty, 0);
+    }
+
+    grid.addEventListener("click", e => {
+      if (e.target.matches(".add")) {
+        const id = e.target.dataset.id;
+        const prod = products.find(p => p.id == id);
+        cart[id] ? cart[id].qty++ : (cart[id] = { ...prod, qty: 1 });
+        renderCart();
+      }
+    });
+
+    cartItems.addEventListener("click", e => {
+      if (e.target.matches(".remove")) {
+        const id = e.target.dataset.id;
+        delete cart[id];
+        renderCart();
+      }
+    });
+
+    document.getElementById("cartBtn").onclick = () => {
+      renderCart();
+      drawer.classList.add("open");
+    };
+
+    document.getElementById("closeDrawer").onclick = () =>
+      drawer.classList.remove("open");
+  </script>
+</body>
+</html>
